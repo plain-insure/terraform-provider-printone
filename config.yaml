@@ -32,3 +32,8 @@ data_sources:
     schema:
       ignores:
         - filters
+
+  webhooksecret:
+    read:
+      path: /v2/webhooks/secret
+      method: POST
