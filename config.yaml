@@ -1,6 +1,26 @@
 provider:
   name: printone
+#  schema_ref: '#/components/securitySchemes'
+#  ignores:
+#    - Oauth2
   
+resources:
+  webhook:
+    create:
+      path: /v2/webhooks
+      method: POST
+    read:
+      path: /v2/webhooks/{id}
+      method: GET
+    update:
+      path: /v2/webhooks/{id}
+      method: PATCH
+    delete:
+      path: /v2/webhooks/{id}
+      method: DELETE
+    schema:
+      ignores:
+        - filters
 
 data_sources:
   webhook:

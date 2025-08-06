@@ -70,5 +70,73 @@
 	"provider": {
 		"name": "printone"
 	},
+	"resources": [
+		{
+			"name": "webhook",
+			"schema": {
+				"attributes": [
+					{
+						"name": "active",
+						"bool": {
+							"computed_optional_required": "required",
+							"description": "Whether the webhook is active"
+						}
+					},
+					{
+						"name": "events",
+						"list": {
+							"computed_optional_required": "required",
+							"element_type": {
+								"string": {}
+							},
+							"description": "List of events to subscribe to"
+						}
+					},
+					{
+						"name": "headers",
+						"single_nested": {
+							"computed_optional_required": "computed_optional",
+							"description": "A map of headers to add to each webhook call"
+						}
+					},
+					{
+						"name": "name",
+						"string": {
+							"computed_optional_required": "required",
+							"description": "The custom name of the webhook"
+						}
+					},
+					{
+						"name": "secret_headers",
+						"single_nested": {
+							"computed_optional_required": "computed_optional",
+							"description": "A map of headers with secret values, which will not be visible after saving"
+						}
+					},
+					{
+						"name": "url",
+						"string": {
+							"computed_optional_required": "required",
+							"description": "The callback of the webhook"
+						}
+					},
+					{
+						"name": "id",
+						"string": {
+							"computed_optional_required": "computed",
+							"description": "The id of the webhook"
+						}
+					},
+					{
+						"name": "success_rate",
+						"single_nested": {
+							"computed_optional_required": "computed",
+							"description": "Percentage of calls to the webhook that have been successful"
+						}
+					}
+				]
+			}
+		}
+	],
 	"version": "0.1"
 }
