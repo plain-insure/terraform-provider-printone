@@ -89,3 +89,23 @@ func (c *Client) DeleteWebhook(ctx context.Context, id string) error {
 
 	return c.handleResponse(resp, nil)
 }
+
+// WebhookSecretResponse represents a webhook secret response from the API.
+type WebhookSecretResponse struct {
+	Secret string `json:"secret"`
+}
+
+// GetWebhookSecret retrieves the webhook secret.
+func (c *Client) GetWebhookSecret(ctx context.Context) (*WebhookSecretResponse, error) {
+	resp, err := c.makeRequest(ctx, http.MethodPost, "/v2/webhooks/secret", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result WebhookSecretResponse
+	if err := c.handleResponse(resp, &result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}

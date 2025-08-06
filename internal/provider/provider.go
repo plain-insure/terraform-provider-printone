@@ -92,6 +92,7 @@ func (p *printoneProvider) Metadata(ctx context.Context, req provider.MetadataRe
 func (p *printoneProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewWebhookDataSource,
+		NewWebhooksecretDataSource,
 	}
 }
 
