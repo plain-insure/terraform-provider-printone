@@ -2,13 +2,13 @@ package provider
 
 import (
 	"context"
-	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-framework/provider"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/plain-insure/terraform-provider-printone/internal/client"
 )
 
 var _ provider.Provider = (*printoneProvider)(nil)
@@ -21,7 +21,7 @@ func New(version string) func() provider.Provider {
 	}
 }
 
-type printoneProvider struct{
+type printoneProvider struct {
 	// version is set to the provider version on release, "dev" when the
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
@@ -31,14 +31,21 @@ type printoneProvider struct{
 // printoneProviderModel describes the provider data model.
 type printoneProviderModel struct {
 	Endpoint types.String `tfsdk:"endpoint"`
+	APIKey   types.String `tfsdk:"api_key"`
 }
 
 func (p *printoneProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "The PrintOne provider is used to interact with PrintOne API resources.",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Example provider attribute",
+				MarkdownDescription: "The PrintOne API endpoint URL. Defaults to https://api.print.one if not provided.",
 				Optional:            true,
+			},
+			"api_key": schema.StringAttribute{
+				MarkdownDescription: "The PrintOne API key for authentication. Can also be set via the PRINTONE_API_KEY environment variable.",
+				Optional:            true,
+				Sensitive:           true,
 			},
 		},
 	}
@@ -54,13 +61,25 @@ func (p *printoneProvider) Configure(ctx context.Context, req provider.Configure
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Endpoint.IsNull() { /* ... */ }
+	// Create PrintOne client configuration
+	config := client.Config{}
 
-	// Example client configuration for data sources and resources
-	client := http.DefaultClient
-	resp.DataSourceData = client
-	resp.ResourceData = client
+	// Set base URL if provided
+	if !data.Endpoint.IsNull() && !data.Endpoint.IsUnknown() {
+		config.BaseURL = data.Endpoint.ValueString()
+	}
+
+	// Set API key if provided
+	if !data.APIKey.IsNull() && !data.APIKey.IsUnknown() {
+		config.APIKey = data.APIKey.ValueString()
+	}
+
+	// Create the PrintOne client
+	printoneclient := client.NewClient(config)
+
+	// Make the client available to resources and data sources
+	resp.DataSourceData = printoneclient
+	resp.ResourceData = printoneclient
 }
 
 func (p *printoneProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -79,4 +98,3 @@ func (p *printoneProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewWebhookResource,
 	}
 }
-
