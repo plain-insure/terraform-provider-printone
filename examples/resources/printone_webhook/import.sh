@@ -1,0 +1,1 @@
+terraform import printone_webhook.example "webhook-id-123"
