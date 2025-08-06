@@ -1,4 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
+// Copyright (c) Plain Technologies Aps
 // SPDX-License-Identifier: MPL-2.0
 
 package main

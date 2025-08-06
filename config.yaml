@@ -1,3 +1,5 @@
+# Copyright (c) Plain Technologies Aps
+
 provider:
   name: printone
 #  schema_ref: '#/components/securitySchemes'
