@@ -1,0 +1,12 @@
+provider:
+  name: printone
+  
+
+data_sources:
+  webhook:
+    read:
+      path: /v2/webhooks/{id}
+      method: GET
+    schema:
+      ignores:
+        - filters

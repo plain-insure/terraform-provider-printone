@@ -1,0 +1,74 @@
+{
+	"datasources": [
+		{
+			"name": "webhook",
+			"schema": {
+				"attributes": [
+					{
+						"name": "id",
+						"string": {
+							"computed_optional_required": "required",
+							"description": "The id of the webhook"
+						}
+					},
+					{
+						"name": "active",
+						"bool": {
+							"computed_optional_required": "computed",
+							"description": "Whether the webhook is active"
+						}
+					},
+					{
+						"name": "events",
+						"list": {
+							"computed_optional_required": "computed",
+							"element_type": {
+								"string": {}
+							},
+							"description": "List of events to subscribe to"
+						}
+					},
+					{
+						"name": "headers",
+						"single_nested": {
+							"computed_optional_required": "computed",
+							"description": "A map of headers to add to each webhook call"
+						}
+					},
+					{
+						"name": "name",
+						"string": {
+							"computed_optional_required": "computed",
+							"description": "The custom name of the webhook"
+						}
+					},
+					{
+						"name": "secret_headers",
+						"single_nested": {
+							"computed_optional_required": "computed",
+							"description": "A map of headers with secret values"
+						}
+					},
+					{
+						"name": "success_rate",
+						"single_nested": {
+							"computed_optional_required": "computed",
+							"description": "Percentage of calls to the webhook that have been successful"
+						}
+					},
+					{
+						"name": "url",
+						"string": {
+							"computed_optional_required": "computed",
+							"description": "The callback of the webhook"
+						}
+					}
+				]
+			}
+		}
+	],
+	"provider": {
+		"name": "printone"
+	},
+	"version": "0.1"
+}
