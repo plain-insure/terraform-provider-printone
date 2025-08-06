@@ -1,13 +1,15 @@
+// Copyright (c) HashiCorp, Inc.
+
 package provider
 
 import (
 	"context"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-framework/provider"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -21,7 +23,7 @@ func New(version string) func() provider.Provider {
 	}
 }
 
-type printoneProvider struct{
+type printoneProvider struct {
 	// version is set to the provider version on release, "dev" when the
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
@@ -79,4 +81,3 @@ func (p *printoneProvider) Resources(ctx context.Context) []func() resource.Reso
 		NewWebhookResource,
 	}
 }
-

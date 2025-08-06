@@ -1,9 +1,11 @@
+// Copyright (c) HashiCorp, Inc.
+
 package provider
 
 import (
 	"context"
-	
-    "github.com/plain-insure/terraform-provider-printone/internal/provider/resource_webhook"
+
+	"github.com/plain-insure/terraform-provider-printone/internal/provider/resource_webhook"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -26,7 +28,7 @@ func (r *webhookResource) Metadata(ctx context.Context, req resource.MetadataReq
 }
 
 func (r *webhookResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-		resp.Schema = resource_webhook.WebhookResourceSchema(ctx)
+	resp.Schema = resource_webhook.WebhookResourceSchema(ctx)
 }
 
 func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
