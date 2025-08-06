@@ -53,21 +53,21 @@ func (r *webhookResource) Configure(ctx context.Context, req resource.ConfigureR
 func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data resource_webhook.WebhookModel
 
-	// Read Terraform plan data into the model
+	// Read Terraform plan data into the model.
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Convert Terraform model to API request
+	// Convert Terraform model to API request.
 	webhookReq, diags := webhookModelToRequest(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Create webhook via API
+	// Create webhook via API.
 	webhookResp, err := r.client.CreateWebhook(ctx, webhookReq)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -77,27 +77,27 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	// Convert API response to Terraform model
+	// Convert API response to Terraform model.
 	resp.Diagnostics.Append(webhookResponseToModel(ctx, webhookResp, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Save data into Terraform state
+	// Save data into Terraform state.
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data resource_webhook.WebhookModel
 
-	// Read Terraform prior state data into the model
+	// Read Terraform prior state data into the model.
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Get webhook from API
+	// Get webhook from API.
 	webhookResp, err := r.client.GetWebhook(ctx, data.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -107,34 +107,34 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	// Convert API response to Terraform model
+	// Convert API response to Terraform model.
 	resp.Diagnostics.Append(webhookResponseToModel(ctx, webhookResp, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Save updated data into Terraform state
+	// Save updated data into Terraform state.
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data resource_webhook.WebhookModel
 
-	// Read Terraform plan data into the model
+	// Read Terraform plan data into the model.
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Convert Terraform model to API request
+	// Convert Terraform model to API request.
 	webhookReq, diags := webhookModelToRequest(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Update webhook via API
+	// Update webhook via API.
 	webhookResp, err := r.client.UpdateWebhook(ctx, data.Id.ValueString(), webhookReq)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -144,27 +144,27 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	// Convert API response to Terraform model
+	// Convert API response to Terraform model.
 	resp.Diagnostics.Append(webhookResponseToModel(ctx, webhookResp, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Save updated data into Terraform state
+	// Save updated data into Terraform state.
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data resource_webhook.WebhookModel
 
-	// Read Terraform prior state data into the model
+	// Read Terraform prior state data into the model.
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Delete webhook via API
+	// Delete webhook via API.
 	err := r.client.DeleteWebhook(ctx, data.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(

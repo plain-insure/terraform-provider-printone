@@ -53,14 +53,14 @@ func (d *webhookDataSource) Configure(ctx context.Context, req datasource.Config
 func (d *webhookDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data datasource_webhook.WebhookModel
 
-	// Read Terraform configuration data into the model
+	// Read Terraform configuration data into the model.
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Get webhook from API using the ID from configuration
+	// Get webhook from API using the ID from configuration.
 	webhookResp, err := d.client.GetWebhook(ctx, data.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -70,12 +70,12 @@ func (d *webhookDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	// Convert API response to Terraform model
+	// Convert API response to Terraform model.
 	resp.Diagnostics.Append(webhookResponseToDataSourceModel(ctx, webhookResp, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Save data into Terraform state
+	// Save data into Terraform state.
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

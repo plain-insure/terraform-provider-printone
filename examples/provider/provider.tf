@@ -1,3 +1,5 @@
+# Copyright (c) HashiCorp, Inc.
+
 provider "printone" {
   # API key for PrintOne API authentication
   # Can also be set via PRINTONE_API_KEY environment variable

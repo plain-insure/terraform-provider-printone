@@ -1,3 +1,5 @@
+# Copyright (c) HashiCorp, Inc.
+
 resource "printone_webhook" "example" {
   name   = "Example Webhook"
   url    = "https://example.com/webhook"

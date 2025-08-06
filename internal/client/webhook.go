@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+
 package client
 
 import (
@@ -6,7 +8,7 @@ import (
 	"net/http"
 )
 
-// WebhookRequest represents a webhook creation/update request
+// WebhookRequest represents a webhook creation/update request.
 type WebhookRequest struct {
 	Name          string                 `json:"name"`
 	URL           string                 `json:"url"`
@@ -17,7 +19,7 @@ type WebhookRequest struct {
 	Filters       []interface{}          `json:"filters,omitempty"`
 }
 
-// WebhookResponse represents a webhook response from the API
+// WebhookResponse represents a webhook response from the API.
 type WebhookResponse struct {
 	ID            string                 `json:"id"`
 	Name          string                 `json:"name"`
@@ -30,7 +32,7 @@ type WebhookResponse struct {
 	Filters       []interface{}          `json:"filters,omitempty"`
 }
 
-// CreateWebhook creates a new webhook
+// CreateWebhook creates a new webhook.
 func (c *Client) CreateWebhook(ctx context.Context, webhook *WebhookRequest) (*WebhookResponse, error) {
 	resp, err := c.makeRequest(ctx, http.MethodPost, "/v2/webhooks", webhook)
 	if err != nil {
@@ -45,7 +47,7 @@ func (c *Client) CreateWebhook(ctx context.Context, webhook *WebhookRequest) (*W
 	return &result, nil
 }
 
-// GetWebhook retrieves a webhook by ID
+// GetWebhook retrieves a webhook by ID.
 func (c *Client) GetWebhook(ctx context.Context, id string) (*WebhookResponse, error) {
 	path := fmt.Sprintf("/v2/webhooks/%s", id)
 	resp, err := c.makeRequest(ctx, http.MethodGet, path, nil)
@@ -61,7 +63,7 @@ func (c *Client) GetWebhook(ctx context.Context, id string) (*WebhookResponse, e
 	return &result, nil
 }
 
-// UpdateWebhook updates an existing webhook
+// UpdateWebhook updates an existing webhook.
 func (c *Client) UpdateWebhook(ctx context.Context, id string, webhook *WebhookRequest) (*WebhookResponse, error) {
 	path := fmt.Sprintf("/v2/webhooks/%s", id)
 	resp, err := c.makeRequest(ctx, http.MethodPatch, path, webhook)
@@ -77,7 +79,7 @@ func (c *Client) UpdateWebhook(ctx context.Context, id string, webhook *WebhookR
 	return &result, nil
 }
 
-// DeleteWebhook deletes a webhook by ID
+// DeleteWebhook deletes a webhook by ID.
 func (c *Client) DeleteWebhook(ctx context.Context, id string) error {
 	path := fmt.Sprintf("/v2/webhooks/%s", id)
 	resp, err := c.makeRequest(ctx, http.MethodDelete, path, nil)

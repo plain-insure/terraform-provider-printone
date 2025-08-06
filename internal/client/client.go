@@ -1,3 +1,5 @@
+// Copyright (c) HashiCorp, Inc.
+
 package client
 
 import (
@@ -16,28 +18,28 @@ const (
 	EnvAPIKey      = "PRINTONE_API_KEY"
 )
 
-// Client represents a PrintOne API client
+// Client represents a PrintOne API client.
 type Client struct {
 	baseURL    string
 	apiKey     string
 	httpClient *http.Client
 }
 
-// Config represents configuration for the PrintOne client
+// Config represents configuration for the PrintOne client.
 type Config struct {
 	BaseURL string
 	APIKey  string
 }
 
-// NewClient creates a new PrintOne API client
+// NewClient creates a new PrintOne API client.
 func NewClient(config Config) *Client {
-	// Use default base URL if not provided
+	// Use default base URL if not provided.
 	baseURL := config.BaseURL
 	if baseURL == "" {
 		baseURL = DefaultBaseURL
 	}
 
-	// Use API key from config or environment variable
+	// Use API key from config or environment variable.
 	apiKey := config.APIKey
 	if apiKey == "" {
 		apiKey = os.Getenv(EnvAPIKey)
@@ -50,7 +52,7 @@ func NewClient(config Config) *Client {
 	}
 }
 
-// makeRequest makes an HTTP request to the PrintOne API
+// makeRequest makes an HTTP request to the PrintOne API.
 func (c *Client) makeRequest(ctx context.Context, method, path string, body interface{}) (*http.Response, error) {
 	url := c.baseURL + path
 
@@ -68,7 +70,7 @@ func (c *Client) makeRequest(ctx context.Context, method, path string, body inte
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
 
-	// Set headers
+	// Set headers.
 	req.Header.Set("Content-Type", "application/json")
 	if c.apiKey != "" {
 		req.Header.Set(APIKeyHeader, c.apiKey)
@@ -82,7 +84,7 @@ func (c *Client) makeRequest(ctx context.Context, method, path string, body inte
 	return resp, nil
 }
 
-// handleResponse handles the HTTP response and unmarshals the body if successful
+// handleResponse handles the HTTP response and unmarshals the body if successful.
 func (c *Client) handleResponse(resp *http.Response, target interface{}) error {
 	defer resp.Body.Close()
 
