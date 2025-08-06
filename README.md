@@ -1,40 +1,121 @@
-# Terraform Provider Scaffolding (Terraform Plugin Framework)
+# Terraform Provider for PrintOne
 
-_This template repository is built on the [Terraform Plugin Framework](https://github.com/hashicorp/terraform-plugin-framework). The template repository built on the [Terraform Plugin SDK](https://github.com/hashicorp/terraform-plugin-sdk) can be found at [terraform-provider-scaffolding](https://github.com/hashicorp/terraform-provider-scaffolding). See [Which SDK Should I Use?](https://developer.hashicorp.com/terraform/plugin/framework-benefits) in the Terraform documentation for additional information._
+This Terraform provider allows you to manage PrintOne API resources using Infrastructure as Code. Currently supports webhook management with an extensible design for additional resources.
 
-This repository is a *template* for a [Terraform](https://www.terraform.io) provider. It is intended as a starting point for creating Terraform providers, containing:
+## Features
 
-- A resource and a data source (`internal/provider/`),
-- Examples (`examples/`) and generated documentation (`docs/`),
-- Miscellaneous meta files.
-
-These files contain boilerplate code that you will need to edit to create your own Terraform provider. Tutorials for creating Terraform providers can be found on the [HashiCorp Developer](https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework) platform. _Terraform Plugin Framework specific guides are titled accordingly._
-
-Please see the [GitHub template repository documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) for how to create a new repository from this template on GitHub.
-
-Once you've written your provider, you'll want to [publish it on the Terraform Registry](https://developer.hashicorp.com/terraform/registry/providers/publishing) so that others can use it.
+- **Webhook Management**: Create, read, update, and delete webhooks
+- **API Key Authentication**: Secure authentication using PrintOne API keys
+- **Environment Variable Support**: Configure API key via `PRINTONE_API_KEY` environment variable
+- **Extensible Design**: Easy to extend for additional PrintOne API resources
 
 ## Requirements
 
 - [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.0
 - [Go](https://golang.org/doc/install) >= 1.23
+- PrintOne API key
 
 ## Building The Provider
 
 1. Clone the repository
-1. Enter the repository directory
-1. Build the provider using the Go `install` command:
+2. Enter the repository directory
+3. Build the provider using the Go `install` command:
 
 ```shell
 go install
 ```
 
+## Using the Provider
+
+### Provider Configuration
+
+```hcl
+terraform {
+  required_providers {
+    printone = {
+      source = "plain-insure/printone"
+    }
+  }
+}
+
+provider "printone" {
+  # API key for authentication (can also use PRINTONE_API_KEY env var)
+  api_key = var.printone_api_key
+  
+  # Optional: Custom API endpoint (defaults to https://api.print.one)
+  # endpoint = "https://api.print.one"
+}
+```
+
+### Environment Variable Configuration
+
+You can set the API key using an environment variable:
+
+```shell
+export PRINTONE_API_KEY="your-api-key"
+```
+
+### Webhook Resource
+
+```hcl
+resource "printone_webhook" "example" {
+  name   = "Order Status Updates"
+  url    = "https://api.example.com/webhooks/orders"
+  active = true
+  events = [
+    "order_status_update",
+    "batch_status_update"
+  ]
+}
+```
+
+### Webhook Data Source
+
+```hcl
+data "printone_webhook" "existing" {
+  id = "webhook-id-123"
+}
+
+output "webhook_url" {
+  value = data.printone_webhook.existing.url
+}
+```
+
+### Complete Example
+
+See `examples/complete-example.tf` for a comprehensive example showing multiple webhooks and data sources.
+
+## API Authentication
+
+The provider uses the PrintOne API key for authentication via the `x-api-key` header. You can provide the API key in two ways:
+
+1. **Provider Configuration** (not recommended for production):
+   ```hcl
+   provider "printone" {
+     api_key = "your-api-key"
+   }
+   ```
+
+2. **Environment Variable** (recommended):
+   ```shell
+   export PRINTONE_API_KEY="your-api-key"
+   ```
+
+## Resources and Data Sources
+
+### Resources
+
+- `printone_webhook`: Manage PrintOne webhooks
+
+### Data Sources
+
+- `printone_webhook`: Read existing PrintOne webhooks
+
 ## Adding Dependencies
 
 This provider uses [Go modules](https://github.com/golang/go/wiki/Modules).
-Please see the Go documentation for the most up to date information about using Go modules.
 
-To add a new dependency `github.com/author/dependency` to your Terraform provider:
+To add a new dependency:
 
 ```shell
 go get github.com/author/dependency
@@ -42,10 +123,6 @@ go mod tidy
 ```
 
 Then commit the changes to `go.mod` and `go.sum`.
-
-## Using the provider
-
-Fill this in for each provider
 
 ## Developing the Provider
 
