@@ -130,6 +130,24 @@ If you wish to work on the provider, you'll first need [Go](http://www.golang.or
 
 To compile the provider, run `go install`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
+### Windows ARM64 Development
+
+If you're developing on Windows ARM64, you need to set the `GOARCH` environment variable to `amd64` when running code generation commands. This is required because Terraform does not support ARM64 architecture, even though Go does. Without this setting, the compiled provider will be a different architecture than what Terraform can find.
+
+**PowerShell:**
+```powershell
+$env:GOARCH="amd64"
+go generate ./tools
+```
+
+**Command Prompt:**
+```cmd
+set GOARCH=amd64
+go generate ./tools
+```
+
+This ensures the generated provider binary is compatible with Terraform's architecture requirements.
+
 To generate or update documentation, run `make generate`.
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
