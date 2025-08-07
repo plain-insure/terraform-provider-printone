@@ -1,4 +1,4 @@
-# Copyright (c) HashiCorp, Inc.
+# Copyright (c) Plain Technologies Aps
 
 terraform {
   required_providers {

@@ -12,7 +12,7 @@ The PrintOne provider is used to interact with PrintOne API resources.
 ## Example Usage
 
 ```terraform
-# Copyright (c) HashiCorp, Inc.
+# Copyright (c) Plain Technologies Aps
 
 provider "printone" {
   # API key for PrintOne API authentication

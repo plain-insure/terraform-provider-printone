@@ -1,4 +1,4 @@
-# Copyright (c) HashiCorp, Inc.
+# Copyright (c) Plain Technologies Aps
 
 provider "printone" {
   # API key for PrintOne API authentication

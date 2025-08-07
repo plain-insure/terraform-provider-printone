@@ -13,7 +13,7 @@ description: |-
 ## Example Usage
 
 ```terraform
-# Copyright (c) HashiCorp, Inc.
+# Copyright (c) Plain Technologies Aps
 
 resource "printone_webhook" "example" {
   name   = "Example Webhook"
@@ -64,7 +64,7 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-# Copyright (c) HashiCorp, Inc.
+# Copyright (c) Plain Technologies Aps
 
 terraform import printone_webhook.example "webhook-id-123"
 ```

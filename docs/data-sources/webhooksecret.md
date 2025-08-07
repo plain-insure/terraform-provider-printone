@@ -3,12 +3,12 @@
 page_title: "printone_webhooksecret Data Source - printone"
 subcategory: ""
 description: |-
-  The webhook secret data source allows you to retrieve the secret used for signing webhook payloads from PrintOne.
+  
 ---
 
 # printone_webhooksecret (Data Source)
 
-The webhook secret data source allows you to retrieve the secret used for signing webhook payloads from PrintOne. This secret is used to verify the authenticity of webhook requests by generating HMAC-SHA256 signatures.
+
 
 ## Example Usage
 
@@ -32,4 +32,4 @@ output "webhook_secret" {
 
 ### Read-Only
 
-- `secret` (String) Secret used for signing webhook payloads
+- `secret` (String, Sensitive) Secret used for signing webhook payloads

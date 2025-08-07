@@ -1,4 +1,4 @@
-# Copyright (c) HashiCorp, Inc.
+# Copyright (c) Plain Technologies Aps
 
 resource "printone_webhook" "example" {
   name   = "Example Webhook"
