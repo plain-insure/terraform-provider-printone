@@ -1,10 +1,15 @@
+// Copyright (c) Plain Technologies Aps
+
 package provider
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/plain-insure/terraform-provider-printone/internal/client"
+	"github.com/plain-insure/terraform-provider-printone/internal/provider/datasource_webhooksecret"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -14,10 +19,8 @@ func NewWebhooksecretDataSource() datasource.DataSource {
 	return &webhooksecretDataSource{}
 }
 
-type webhooksecretDataSource struct{}
-
-type webhooksecretDataSourceModel struct {
-	Id types.String `tfsdk:"id"`
+type webhooksecretDataSource struct {
+	client *client.Client
 }
 
 func (d *webhooksecretDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -25,30 +28,52 @@ func (d *webhooksecretDataSource) Metadata(ctx context.Context, req datasource.M
 }
 
 func (d *webhooksecretDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-			},
-		},
+	resp.Schema = datasource_webhooksecret.WebhooksecretDataSourceSchema(ctx)
+}
+
+func (d *webhooksecretDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	// Prevent panic if the provider has not been configured.
+	if req.ProviderData == nil {
+		return
 	}
+
+	client, ok := req.ProviderData.(*client.Client)
+
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *client.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	d.client = client
 }
 
 func (d *webhooksecretDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data webhooksecretDataSourceModel
+	var data datasource_webhooksecret.WebhooksecretModel
 
-	// Read Terraform configuration data into the model
+	// Read Terraform configuration data into the model.
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Read API call logic
+	// Get webhook secret from API.
+	secretResp, err := d.client.GetWebhookSecret(ctx)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error reading webhook secret",
+			"Could not read webhook secret: "+err.Error(),
+		)
+		return
+	}
 
-	// Example data value setting
-	data.Id = types.StringValue("example-id")
+	// Convert API response to Terraform model.
+	data.Secret = types.StringValue(secretResp.Secret)
 
-	// Save data into Terraform state
+	// Save data into Terraform state.
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

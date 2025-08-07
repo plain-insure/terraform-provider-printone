@@ -52,6 +52,11 @@ data "printone_webhook" "existing" {
   id = "existing-webhook-id"
 }
 
+# Data source to retrieve the webhook secret for signature verification
+data "printone_webhooksecret" "secret" {
+  # No configuration required - retrieves the account webhook secret
+}
+
 # Output webhook information
 output "order_webhook_id" {
   description = "ID of the order updates webhook"
@@ -66,4 +71,10 @@ output "existing_webhook_name" {
 output "existing_webhook_url" {
   description = "URL of the existing webhook"
   value       = data.printone_webhook.existing.url
+}
+
+output "webhook_secret" {
+  description = "Secret for webhook signature verification"
+  value       = data.printone_webhooksecret.secret.secret
+  sensitive   = true
 }
