@@ -14,6 +14,7 @@ func WebhooksecretDataSourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"secret": schema.StringAttribute{
 				Computed:            true,
+				Sensitive:           true,
 				Description:         "Secret used for signing webhook payloads",
 				MarkdownDescription: "Secret used for signing webhook payloads",
 			},
