@@ -3,7 +3,7 @@ module github.com/plain-insure/terraform-provider-printone
 go 1.24.0
 
 require (
-	github.com/hashicorp/terraform-plugin-framework v1.16.0
+	github.com/hashicorp/terraform-plugin-framework v1.16.1
 	github.com/hashicorp/terraform-plugin-go v0.29.0
 )
 
