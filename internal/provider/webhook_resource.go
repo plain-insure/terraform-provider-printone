@@ -77,14 +77,22 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	// Convert API response to Terraform model.
-	resp.Diagnostics.Append(webhookResponseToModel(ctx, webhookResp, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+       // Convert API response to Terraform model.
+       resp.Diagnostics.Append(webhookResponseToModel(ctx, webhookResp, &data)...)
+       if resp.Diagnostics.HasError() {
+	       return
+       }
 
-	// Save data into Terraform state.
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+       // For secret_headers, always set exactly from the plan (no transformation).
+       var planInput resource_webhook.WebhookModel
+       resp.Diagnostics.Append(req.Plan.Get(ctx, &planInput)...)
+       if resp.Diagnostics.HasError() {
+	       return
+       }
+       data.SecretHeaders = planInput.SecretHeaders
+
+       // Save data into Terraform state.
+       resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -107,14 +115,22 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	// Convert API response to Terraform model.
-	resp.Diagnostics.Append(webhookResponseToModel(ctx, webhookResp, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+       // Convert API response to Terraform model.
+       resp.Diagnostics.Append(webhookResponseToModel(ctx, webhookResp, &data)...)
+       if resp.Diagnostics.HasError() {
+	       return
+       }
 
-	// Save updated data into Terraform state.
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+       // Always set secret_headers from previous state, never overwrite with API response, and copy exactly.
+       var prevState resource_webhook.WebhookModel
+       resp.Diagnostics.Append(req.State.Get(ctx, &prevState)...)
+       if resp.Diagnostics.HasError() {
+	       return
+       }
+       data.SecretHeaders = prevState.SecretHeaders
+
+       // Save updated data into Terraform state.
+       resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -155,6 +171,14 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
        if resp.Diagnostics.HasError() {
 	       return
        }
+
+       // Always set secret_headers from the plan, never from the API response, and copy exactly.
+       var planInput resource_webhook.WebhookModel
+       resp.Diagnostics.Append(req.Plan.Get(ctx, &planInput)...)
+       if resp.Diagnostics.HasError() {
+	       return
+       }
+       plan.SecretHeaders = planInput.SecretHeaders
 
        // Save updated data into Terraform state.
        resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)

@@ -105,18 +105,6 @@ func webhookResponseToModel(ctx context.Context, response *client.WebhookRespons
 		model.SecretHeaders = types.MapNull(types.StringType)
 	}
 
-	// Convert success rate.
-	if response.SuccessRate != nil {
-		if numVal, ok := response.SuccessRate.(float64); ok {
-			model.SuccessRate = types.NumberValue(big.NewFloat(numVal))
-		} else if intVal, ok := response.SuccessRate.(int); ok {
-			model.SuccessRate = types.NumberValue(big.NewFloat(float64(intVal)))
-		} else {
-			model.SuccessRate = types.NumberNull()
-		}
-	} else {
-		model.SuccessRate = types.NumberNull()
-	}
 
 	return diags
 }

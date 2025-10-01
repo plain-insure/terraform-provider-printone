@@ -14,7 +14,7 @@ data "printone_webhook" "first_order" {
   id = "a989f2f7-8572-4b9a-89ca-12524003f596"
 }
 
-resource "printone_webhook" "leads" {
+resource "printone_webhook" "leads2" {
   name   = "demo-leads"
   url    = "https://www.example.com/webhook"
   active = false
@@ -35,7 +35,7 @@ resource "printone_webhook" "leads" {
   ]
   */
   headers = {
-    X-Test = "demo"
+    X-Test = "demo21"
   }
   secret_headers = {
     X-Secret-Test = "secret"

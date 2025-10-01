@@ -50,11 +50,6 @@ func WebhookResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "A map of headers with secret values, which will not be visible after saving",
 				MarkdownDescription: "A map of headers with secret values, which will not be visible after saving",
 			},
-			"success_rate": schema.NumberAttribute{
-				Computed:            true,
-				Description:         "Percentage of calls to the webhook that have been successful",
-				MarkdownDescription: "Percentage of calls to the webhook that have been successful",
-			},
 			"url": schema.StringAttribute{
 				Required:            true,
 				Description:         "The callback of the webhook",
@@ -71,6 +66,5 @@ type WebhookModel struct {
 	Id            types.String `tfsdk:"id"`
 	Name          types.String `tfsdk:"name"`
 	SecretHeaders types.Map    `tfsdk:"secret_headers"`
-	SuccessRate   types.Number `tfsdk:"success_rate"`
 	Url           types.String `tfsdk:"url"`
 }
