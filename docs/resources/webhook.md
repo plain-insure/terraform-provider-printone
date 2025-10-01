@@ -38,24 +38,12 @@ resource "printone_webhook" "example" {
 
 ### Optional
 
-- `headers` (Attributes) A map of headers to add to each webhook call (see [below for nested schema](#nestedatt--headers))
-- `secret_headers` (Attributes) A map of headers with secret values, which will not be visible after saving (see [below for nested schema](#nestedatt--secret_headers))
+- `headers` (Map of String) A map of headers to add to each webhook call
+- `secret_headers` (Map of String, Sensitive) A map of headers with secret values, which will not be visible after saving
 
 ### Read-Only
 
 - `id` (String) The id of the webhook
-- `success_rate` (Attributes) Percentage of calls to the webhook that have been successful (see [below for nested schema](#nestedatt--success_rate))
-
-<a id="nestedatt--headers"></a>
-### Nested Schema for `headers`
-
-
-<a id="nestedatt--secret_headers"></a>
-### Nested Schema for `secret_headers`
-
-
-<a id="nestedatt--success_rate"></a>
-### Nested Schema for `success_rate`
 
 ## Import
 
