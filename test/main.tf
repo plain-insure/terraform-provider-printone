@@ -44,6 +44,5 @@ resource "printone_webhook" "leads2" {
 }
 
 output "first_order" {
-  sensitive = true
   value = data.printone_webhook.first_order
 }

@@ -33,6 +33,6 @@ data "printone_webhook" "example" {
 - `events` (List of String) List of events to subscribe to
 - `headers` (Map of String) A map of headers to add to each webhook call
 - `name` (String) The custom name of the webhook
-- `secret_headers` (Map of String, Sensitive) A map of headers with secret values
+- `secret_headers` (Map of String) A map of headers with secret values, the values will always be '** SecretValue **'
 - `success_rate` (Number) Percentage of calls to the webhook that have been successful
 - `url` (String) The callback of the webhook
