@@ -44,7 +44,6 @@ resource "printone_webhook" "example" {
 ### Read-Only
 
 - `id` (String) The id of the webhook
-- `success_rate` (Number) Percentage of calls to the webhook that have been successful
 
 ## Import
 
