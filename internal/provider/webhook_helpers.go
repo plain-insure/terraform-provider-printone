@@ -105,7 +105,6 @@ func webhookResponseToModel(ctx context.Context, response *client.WebhookRespons
 		model.SecretHeaders = types.MapNull(types.StringType)
 	}
 
-
 	return diags
 }
 

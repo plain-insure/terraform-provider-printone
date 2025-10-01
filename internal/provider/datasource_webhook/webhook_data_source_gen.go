@@ -41,12 +41,12 @@ func WebhookDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "The custom name of the webhook",
 				MarkdownDescription: "The custom name of the webhook",
 			},
-			   "secret_headers": schema.MapAttribute{
-				   ElementType:         types.StringType,
-				   Computed:            true,
-				   Description:         "A map of headers with secret values, the values will always be '** SecretValue **'",
-				   MarkdownDescription: "A map of headers with secret values, the values will always be '** SecretValue **'",
-			   },
+			"secret_headers": schema.MapAttribute{
+				ElementType:         types.StringType,
+				Computed:            true,
+				Description:         "A map of headers with secret values, the values will always be '** SecretValue **'",
+				MarkdownDescription: "A map of headers with secret values, the values will always be '** SecretValue **'",
+			},
 			"success_rate": schema.NumberAttribute{
 				Computed:            true,
 				Description:         "Percentage of calls to the webhook that have been successful",
