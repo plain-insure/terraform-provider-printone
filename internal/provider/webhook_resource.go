@@ -5,14 +5,98 @@ package provider
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/plain-insure/terraform-provider-printone/internal/client"
 	"github.com/plain-insure/terraform-provider-printone/internal/provider/resource_webhook"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 
 var _ resource.Resource = (*webhookResource)(nil)
+
+// Supported event types
+var supportedEvents = []string{
+	"order_status_update",
+	"template_preview_rendered",
+	"batch_status_update",
+	"coupon_code_used",
+	"incasso_failed",
+	"incasso_reversed",
+	"qr_code_scanned",
+	"company_onboarding_changed",
+	"company_signup",
+	"company_neared_postpaid_limit",
+}
+
+// Supported filter types
+var supportedFilterTypes = []string{
+	"equals",
+	"not-equals",
+	"in",
+	"not-in",
+}
+
+// validateFilters validates webhook filters according to the business rules
+func validateFilters(ctx context.Context, filters []resource_webhook.WebhookFilterModel) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	for i, filter := range filters {
+		// Validate event type
+		if !slices.Contains(supportedEvents, filter.Event.ValueString()) {
+			diags.AddError(
+				"Invalid Filter Event",
+				fmt.Sprintf("Filter %d has invalid event '%s'. Supported events: %v", i, filter.Event.ValueString(), supportedEvents),
+			)
+		}
+
+		// Validate filter type
+		filterType := filter.Type.ValueString()
+		if !slices.Contains(supportedFilterTypes, filterType) {
+			diags.AddError(
+				"Invalid Filter Type",
+				fmt.Sprintf("Filter %d has invalid type '%s'. Supported types: %v", i, filterType, supportedFilterTypes),
+			)
+			continue
+		}
+
+		// Validate value/values constraints based on filter type
+		hasValue := !filter.Value.IsNull() && !filter.Value.IsUnknown() && filter.Value.ValueString() != ""
+		hasValues := !filter.Values.IsNull() && !filter.Values.IsUnknown() && len(filter.Values.Elements()) > 0
+
+		switch filterType {
+		case "equals", "not-equals":
+			if !hasValue {
+				diags.AddError(
+					"Missing Filter Value",
+					fmt.Sprintf("Filter %d with type '%s' must have a 'value' set", i, filterType),
+				)
+			}
+			if hasValues {
+				diags.AddError(
+					"Invalid Filter Values",
+					fmt.Sprintf("Filter %d with type '%s' must NOT have 'values' set, only 'value'", i, filterType),
+				)
+			}
+		case "in", "not-in":
+			if !hasValues {
+				diags.AddError(
+					"Missing Filter Values",
+					fmt.Sprintf("Filter %d with type '%s' must have 'values' set", i, filterType),
+				)
+			}
+			if hasValue {
+				diags.AddError(
+					"Invalid Filter Value",
+					fmt.Sprintf("Filter %d with type '%s' must NOT have 'value' set, only 'values'", i, filterType),
+				)
+			}
+		}
+	}
+
+	return diags
+}
 
 func NewWebhookResource() resource.Resource {
 	return &webhookResource{}
@@ -58,6 +142,19 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// Validate filters if present
+	if !data.Filters.IsNull() && !data.Filters.IsUnknown() {
+		var filterModels []resource_webhook.WebhookFilterModel
+		resp.Diagnostics.Append(data.Filters.ElementsAs(ctx, &filterModels, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		resp.Diagnostics.Append(validateFilters(ctx, filterModels)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	// Convert Terraform model to API request.
@@ -125,6 +222,19 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// Validate filters if present
+	if !data.Filters.IsNull() && !data.Filters.IsUnknown() {
+		var filterModels []resource_webhook.WebhookFilterModel
+		resp.Diagnostics.Append(data.Filters.ElementsAs(ctx, &filterModels, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		resp.Diagnostics.Append(validateFilters(ctx, filterModels)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	// Convert Terraform model to API request.

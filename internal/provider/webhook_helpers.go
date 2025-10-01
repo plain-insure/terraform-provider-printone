@@ -5,6 +5,7 @@ package provider
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/plain-insure/terraform-provider-printone/internal/client"
@@ -35,6 +36,35 @@ func webhookModelToRequest(ctx context.Context, model *resource_webhook.WebhookM
 		// For now, we'll leave secret headers empty - similar to headers.
 	}
 
+	// Convert filters if not null.
+	var filters []client.WebhookFilter
+	if !model.Filters.IsNull() && !model.Filters.IsUnknown() {
+		var filterModels []resource_webhook.WebhookFilterModel
+		diags.Append(model.Filters.ElementsAs(ctx, &filterModels, false)...)
+
+		for _, filterModel := range filterModels {
+			filter := client.WebhookFilter{
+				Key:   filterModel.Key.ValueString(),
+				Event: filterModel.Event.ValueString(),
+				Type:  filterModel.Type.ValueString(),
+			}
+
+			// Set value or values based on filter type.
+			if !filterModel.Value.IsNull() && !filterModel.Value.IsUnknown() {
+				value := filterModel.Value.ValueString()
+				filter.Value = &value
+			}
+
+			if !filterModel.Values.IsNull() && !filterModel.Values.IsUnknown() {
+				var values []string
+				diags.Append(filterModel.Values.ElementsAs(ctx, &values, false)...)
+				filter.Values = values
+			}
+
+			filters = append(filters, filter)
+		}
+	}
+
 	request := &client.WebhookRequest{
 		Name:          model.Name.ValueString(),
 		URL:           model.Url.ValueString(),
@@ -42,6 +72,7 @@ func webhookModelToRequest(ctx context.Context, model *resource_webhook.WebhookM
 		Events:        events,
 		Headers:       headers,
 		SecretHeaders: secretHeaders,
+		Filters:       filters,
 	}
 
 	return request, diags
@@ -60,6 +91,56 @@ func webhookResponseToModel(ctx context.Context, response *client.WebhookRespons
 	eventsList, d := types.ListValueFrom(ctx, types.StringType, response.Events)
 	diags.Append(d...)
 	model.Events = eventsList
+
+	// Convert filters.
+	if len(response.Filters) > 0 {
+		filterModels := make([]resource_webhook.WebhookFilterModel, len(response.Filters))
+		for i, filter := range response.Filters {
+			filterModel := resource_webhook.WebhookFilterModel{
+				Key:   types.StringValue(filter.Key),
+				Event: types.StringValue(filter.Event),
+				Type:  types.StringValue(filter.Type),
+			}
+
+			if filter.Value != nil {
+				filterModel.Value = types.StringValue(*filter.Value)
+			} else {
+				filterModel.Value = types.StringNull()
+			}
+
+			if len(filter.Values) > 0 {
+				valuesList, d := types.ListValueFrom(ctx, types.StringType, filter.Values)
+				diags.Append(d...)
+				filterModel.Values = valuesList
+			} else {
+				filterModel.Values = types.ListNull(types.StringType)
+			}
+
+			filterModels[i] = filterModel
+		}
+
+		filtersList, d := types.ListValueFrom(ctx, types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"key":    types.StringType,
+				"event":  types.StringType,
+				"type":   types.StringType,
+				"value":  types.StringType,
+				"values": types.ListType{ElemType: types.StringType},
+			},
+		}, filterModels)
+		diags.Append(d...)
+		model.Filters = filtersList
+	} else {
+		model.Filters = types.ListNull(types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"key":    types.StringType,
+				"event":  types.StringType,
+				"type":   types.StringType,
+				"value":  types.StringType,
+				"values": types.ListType{ElemType: types.StringType},
+			},
+		})
+	}
 
 	// For now, set complex nested types to null/unknown.
 	// These can be enhanced later when the complete mapping is needed.

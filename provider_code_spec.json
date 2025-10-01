@@ -135,6 +135,55 @@
 						}
 					},
 					{
+						"name": "filters",
+						"list_nested": {
+							"computed_optional_required": "optional",
+							"description": "List of filters to apply to webhook events",
+							"nested_object": {
+								"attributes": [
+									{
+										"name": "key",
+										"string": {
+											"computed_optional_required": "required",
+											"description": "The filter key"
+										}
+									},
+									{
+										"name": "event",
+										"string": {
+											"computed_optional_required": "required",
+											"description": "The event type to filter"
+										}
+									},
+									{
+										"name": "type",
+										"string": {
+											"computed_optional_required": "required",
+											"description": "The filter type (equals, not-equals, in, not-in)"
+										}
+									},
+									{
+										"name": "value",
+										"string": {
+											"computed_optional_required": "optional",
+											"description": "The value to match (for equals/not-equals types)"
+										}
+									},
+									{
+										"name": "values",
+										"list": {
+											"computed_optional_required": "optional",
+											"element_type": {
+												"string": {}
+											},
+											"description": "The list of values to match (for in/not-in types)"
+										}
+									}
+								]
+							}
+						}
+					},
+					{
 						"name": "id",
 						"string": {
 							"computed_optional_required": "computed",
