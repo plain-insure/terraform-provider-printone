@@ -31,19 +31,8 @@ data "printone_webhook" "example" {
 
 - `active` (Boolean) Whether the webhook is active
 - `events` (List of String) List of events to subscribe to
-- `headers` (Attributes) A map of headers to add to each webhook call (see [below for nested schema](#nestedatt--headers))
+- `headers` (Map of String) A map of headers to add to each webhook call
 - `name` (String) The custom name of the webhook
-- `secret_headers` (Attributes) A map of headers with secret values (see [below for nested schema](#nestedatt--secret_headers))
-- `success_rate` (Attributes) Percentage of calls to the webhook that have been successful (see [below for nested schema](#nestedatt--success_rate))
+- `secret_headers` (Map of String, Sensitive) A map of headers with secret values
+- `success_rate` (Number) Percentage of calls to the webhook that have been successful
 - `url` (String) The callback of the webhook
-
-<a id="nestedatt--headers"></a>
-### Nested Schema for `headers`
-
-
-<a id="nestedatt--secret_headers"></a>
-### Nested Schema for `secret_headers`
-
-
-<a id="nestedatt--success_rate"></a>
-### Nested Schema for `success_rate`

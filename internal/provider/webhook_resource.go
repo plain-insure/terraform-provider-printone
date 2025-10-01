@@ -118,40 +118,46 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data resource_webhook.WebhookModel
+       var plan resource_webhook.WebhookModel
+       var state resource_webhook.WebhookModel
 
-	// Read Terraform plan data into the model.
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+       // Read Terraform plan data into the model.
+       resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+       if resp.Diagnostics.HasError() {
+	       return
+       }
 
-	if resp.Diagnostics.HasError() {
-		return
-	}
+       // Read the current state to get the ID.
+       resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+       if resp.Diagnostics.HasError() {
+	       return
+       }
 
-	// Convert Terraform model to API request.
-	webhookReq, diags := webhookModelToRequest(ctx, &data)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+       // Convert Terraform model to API request.
+       webhookReq, diags := webhookModelToRequest(ctx, &plan)
+       resp.Diagnostics.Append(diags...)
+       if resp.Diagnostics.HasError() {
+	       return
+       }
 
-	// Update webhook via API.
-	webhookResp, err := r.client.UpdateWebhook(ctx, data.Id.ValueString(), webhookReq)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error updating webhook",
-			"Could not update webhook ID "+data.Id.ValueString()+": "+err.Error(),
-		)
-		return
-	}
+       // Update webhook via API using the ID from state.
+       webhookResp, err := r.client.UpdateWebhook(ctx, state.Id.ValueString(), webhookReq)
+       if err != nil {
+	       resp.Diagnostics.AddError(
+		       "Error updating webhook",
+		       "Could not update webhook ID "+state.Id.ValueString()+": "+err.Error(),
+	       )
+	       return
+       }
 
-	// Convert API response to Terraform model.
-	resp.Diagnostics.Append(webhookResponseToModel(ctx, webhookResp, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+       // Convert API response to Terraform model.
+       resp.Diagnostics.Append(webhookResponseToModel(ctx, webhookResp, &plan)...)
+       if resp.Diagnostics.HasError() {
+	       return
+       }
 
-	// Save updated data into Terraform state.
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+       // Save updated data into Terraform state.
+       resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
 func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
