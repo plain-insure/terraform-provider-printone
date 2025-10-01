@@ -18,22 +18,16 @@ resource "printone_webhook" "leads2" {
   name   = "demo-leads"
   url    = "https://www.example.com/webhook"
   active = false
-  /*
+  
   filters = [
     {
       key   = "status"
       event = "order_status_update"
       type  = "equals"
       value = "order_created"
-    },
-    {
-      key    = "status"
-      event  = "batch_status_update"
-      type   = "in"
-      values = ["batch_created", "batch_processed"]
     }
   ]
-  */
+  
   headers = {
     X-Test = "demo21"
   }

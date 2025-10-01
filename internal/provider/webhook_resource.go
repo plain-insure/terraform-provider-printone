@@ -246,18 +246,18 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	// Validate filters if present
-	if !data.Filters.IsNull() && !data.Filters.IsUnknown() {
-		var filterModels []resource_webhook.WebhookFilterModel
-		resp.Diagnostics.Append(data.Filters.ElementsAs(ctx, &filterModels, false)...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-		resp.Diagnostics.Append(validateFilters(ctx, filterModels)...)
-		if resp.Diagnostics.HasError() {
-			return
-		}
-	}
+       // Validate filters if present
+       if !plan.Filters.IsNull() && !plan.Filters.IsUnknown() {
+	       var filterModels []resource_webhook.WebhookFilterModel
+	       resp.Diagnostics.Append(plan.Filters.ElementsAs(ctx, &filterModels, false)...)
+	       if resp.Diagnostics.HasError() {
+		       return
+	       }
+	       resp.Diagnostics.Append(validateFilters(ctx, filterModels)...)
+	       if resp.Diagnostics.HasError() {
+		       return
+	       }
+       }
 
 	// Convert Terraform model to API request.
 	webhookReq, diags := webhookModelToRequest(ctx, &plan)
