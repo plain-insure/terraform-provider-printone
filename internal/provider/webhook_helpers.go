@@ -14,6 +14,26 @@ import (
 	"github.com/plain-insure/terraform-provider-printone/internal/provider/resource_webhook"
 )
 
+// toStringSlice attempts to convert an interface{} to a slice of strings.
+func toStringSlice(value interface{}) ([]string, bool) {
+	switch v := value.(type) {
+	case []string:
+		return v, true
+	case []interface{}:
+		result := make([]string, 0, len(v))
+		for _, item := range v {
+			str, ok := item.(string)
+			if !ok {
+				return nil, false
+			}
+			result = append(result, str)
+		}
+		return result, true
+	default:
+		return nil, false
+	}
+}
+
 // webhookModelToRequest converts a Terraform webhook model to an API request.
 func webhookModelToRequest(ctx context.Context, model *resource_webhook.WebhookModel) (*client.WebhookRequest, diag.Diagnostics) {
 	var diags diag.Diagnostics
@@ -64,7 +84,7 @@ func webhookModelToRequest(ctx context.Context, model *resource_webhook.WebhookM
 			// Set value or values based on filter type.
 			if !filterModel.Value.IsNull() && !filterModel.Value.IsUnknown() {
 				value := filterModel.Value.ValueString()
-				filter.Value = &value
+				filter.Value = value
 			}
 
 			if !filterModel.Values.IsNull() && !filterModel.Values.IsUnknown() {
@@ -115,16 +135,28 @@ func webhookResponseToModel(ctx context.Context, response *client.WebhookRespons
 			}
 
 			if filter.Value != nil {
-				filterModel.Value = types.StringValue(*filter.Value)
-			} else {
-				filterModel.Value = types.StringNull()
-			}
-
-			if len(filter.Values) > 0 {
+				switch v := filter.Value.(type) {
+				case string:
+					filterModel.Value = types.StringValue(v)
+					filterModel.Values = types.ListNull(types.StringType)
+				default:
+					if slice, ok := toStringSlice(v); ok {
+						valuesList, d := types.ListValueFrom(ctx, types.StringType, slice)
+						diags.Append(d...)
+						filterModel.Values = valuesList
+						filterModel.Value = types.StringNull()
+					} else {
+						filterModel.Value = types.StringNull()
+						filterModel.Values = types.ListNull(types.StringType)
+					}
+				}
+			} else if len(filter.Values) > 0 {
 				valuesList, d := types.ListValueFrom(ctx, types.StringType, filter.Values)
 				diags.Append(d...)
 				filterModel.Values = valuesList
+				filterModel.Value = types.StringNull()
 			} else {
+				filterModel.Value = types.StringNull()
 				filterModel.Values = types.ListNull(types.StringType)
 			}
 
@@ -192,6 +224,75 @@ func webhookResponseToModel(ctx context.Context, response *client.WebhookRespons
 // webhookResponseToDataSourceModel converts an API response to a Terraform webhook data source model.
 func webhookResponseToDataSourceModel(ctx context.Context, response *client.WebhookResponse, model *datasource_webhook.WebhookModel) diag.Diagnostics {
 	var diags diag.Diagnostics
+	// Convert filters.
+	if len(response.Filters) > 0 {
+		filterObjects := make([]attr.Value, len(response.Filters))
+		objectType := types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"key":    types.StringType,
+				"event":  types.StringType,
+				"type":   types.StringType,
+				"value":  types.StringType,
+				"values": types.ListType{ElemType: types.StringType},
+			},
+		}
+		for i, filter := range response.Filters {
+			var value attr.Value = types.StringNull()
+			var values attr.Value = types.ListNull(types.StringType)
+
+			// Map filter.Value as string or list
+			if filter.Value != nil {
+				switch v := filter.Value.(type) {
+				case string:
+					value = types.StringValue(v)
+					values = types.ListNull(types.StringType)
+				default:
+					if slice, ok := toStringSlice(v); ok {
+						valuesList, d := types.ListValueFrom(ctx, types.StringType, slice)
+						diags.Append(d...)
+						values = valuesList
+						value = types.StringNull()
+					}
+				}
+			}
+			// If filter.Values is present and non-empty, prefer it
+			if len(filter.Values) > 0 {
+				valuesList, d := types.ListValueFrom(ctx, types.StringType, filter.Values)
+				diags.Append(d...)
+				values = valuesList
+				value = types.StringNull()
+			}
+
+			obj, d := types.ObjectValue(map[string]attr.Type{
+				"key":    types.StringType,
+				"event":  types.StringType,
+				"type":   types.StringType,
+				"value":  types.StringType,
+				"values": types.ListType{ElemType: types.StringType},
+			}, map[string]attr.Value{
+				"key":    types.StringValue(filter.Key),
+				"event":  types.StringValue(filter.Event),
+				"type":   types.StringValue(filter.Type),
+				"value":  value,
+				"values": values,
+			})
+			diags.Append(d...)
+			filterObjects[i] = obj
+		}
+		filtersList, d := types.ListValue(objectType, filterObjects)
+		diags.Append(d...)
+		model.Filters = filtersList
+	} else {
+		model.Filters = types.ListNull(types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"key":    types.StringType,
+				"event":  types.StringType,
+				"type":   types.StringType,
+				"value":  types.StringType,
+				"values": types.ListType{ElemType: types.StringType},
+			},
+		})
+	}
 
 	model.Id = types.StringValue(response.ID)
 	model.Name = types.StringValue(response.Name)

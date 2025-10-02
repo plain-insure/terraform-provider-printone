@@ -7,13 +7,26 @@ package datasource_webhook
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
+		"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+		"github.com/hashicorp/terraform-plugin-framework/types"
+		"github.com/hashicorp/terraform-plugin-framework/attr"
 )
 
 func WebhookDataSourceSchema(ctx context.Context) schema.Schema {
-	return schema.Schema{
-		Attributes: map[string]schema.Attribute{
+   return schema.Schema{
+	   Attributes: map[string]schema.Attribute{
+		   "filters": schema.ListAttribute{
+			   ElementType: types.ObjectType{AttrTypes: map[string]attr.Type{
+				   "key":    types.StringType,
+				   "event":  types.StringType,
+				   "type":   types.StringType,
+				   "value":  types.StringType,
+				   "values": types.ListType{ElemType: types.StringType},
+			   }},
+			   Computed:            true,
+			   Description:         "List of filters for the webhook",
+			   MarkdownDescription: "List of filters for the webhook",
+		   },
 			"active": schema.BoolAttribute{
 				Computed:            true,
 				Description:         "Whether the webhook is active",
@@ -62,6 +75,7 @@ func WebhookDataSourceSchema(ctx context.Context) schema.Schema {
 }
 
 type WebhookModel struct {
+	Filters       types.List   `tfsdk:"filters"`
 	Active        types.Bool   `tfsdk:"active"`
 	Events        types.List   `tfsdk:"events"`
 	Headers       types.Map    `tfsdk:"headers"`

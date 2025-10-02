@@ -10,11 +10,11 @@ import (
 
 // WebhookFilter represents a filter for webhook events.
 type WebhookFilter struct {
-	Key    string   `json:"key"`
-	Event  string   `json:"event"`
-	Type   string   `json:"type"`
-	Value  *string  `json:"value,omitempty"`
-	Values []string `json:"values,omitempty"`
+	Key    string      `json:"key"`
+	Event  string      `json:"event"`
+	Type   string      `json:"type"`
+	Value  interface{} `json:"value,omitempty"`
+	Values []string    `json:"values,omitempty"`
 }
 
 // WebhookRequest represents a webhook creation/update request.
