@@ -16,7 +16,7 @@ import (
 
 var _ resource.Resource = (*webhookResource)(nil)
 
-// Supported event types
+// Supported event types.
 var supportedEvents = []string{
 	"order_status_update",
 	"template_preview_rendered",
@@ -30,7 +30,7 @@ var supportedEvents = []string{
 	"company_neared_postpaid_limit",
 }
 
-// Supported filter types
+// Supported filter types.
 var supportedFilterTypes = []string{
 	"equals",
 	"not-equals",
@@ -38,8 +38,8 @@ var supportedFilterTypes = []string{
 	"not-in",
 }
 
-// validateFilters validates webhook filters according to the business rules
-func validateFilters(ctx context.Context, filters []resource_webhook.WebhookFilterModel) diag.Diagnostics {
+// validateFilters validates webhook filters according to the business rules.
+func validateFilters(filters []resource_webhook.WebhookFilterModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	for i, filter := range filters {
@@ -151,7 +151,7 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 		if resp.Diagnostics.HasError() {
 			return
 		}
-		resp.Diagnostics.Append(validateFilters(ctx, filterModels)...)
+		resp.Diagnostics.Append(validateFilters(filterModels)...)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -246,18 +246,18 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-       // Validate filters if present
-       if !plan.Filters.IsNull() && !plan.Filters.IsUnknown() {
-	       var filterModels []resource_webhook.WebhookFilterModel
-	       resp.Diagnostics.Append(plan.Filters.ElementsAs(ctx, &filterModels, false)...)
-	       if resp.Diagnostics.HasError() {
-		       return
-	       }
-	       resp.Diagnostics.Append(validateFilters(ctx, filterModels)...)
-	       if resp.Diagnostics.HasError() {
-		       return
-	       }
-       }
+	// Validate filters if present
+	if !plan.Filters.IsNull() && !plan.Filters.IsUnknown() {
+		var filterModels []resource_webhook.WebhookFilterModel
+		resp.Diagnostics.Append(plan.Filters.ElementsAs(ctx, &filterModels, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		resp.Diagnostics.Append(validateFilters(filterModels)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
 
 	// Convert Terraform model to API request.
 	webhookReq, diags := webhookModelToRequest(ctx, &plan)

@@ -3,7 +3,6 @@
 package provider
 
 import (
-	"context"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -12,8 +11,6 @@ import (
 )
 
 func TestValidateFilters(t *testing.T) {
-	ctx := context.Background()
-
 	tests := []struct {
 		name          string
 		filters       []resource_webhook.WebhookFilterModel
@@ -141,7 +138,7 @@ func TestValidateFilters(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			diags := validateFilters(ctx, tt.filters)
+			diags := validateFilters(tt.filters)
 
 			if tt.expectError {
 				if !diags.HasError() {
