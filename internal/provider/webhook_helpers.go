@@ -81,16 +81,13 @@ func webhookModelToRequest(ctx context.Context, model *resource_webhook.WebhookM
 				Type:  filterModel.Type.ValueString(),
 			}
 
-			// Set value or values based on filter type.
-			if !filterModel.Value.IsNull() && !filterModel.Value.IsUnknown() {
-				value := filterModel.Value.ValueString()
-				filter.Value = value
-			}
-
+			// Prefer list values when provided; otherwise use scalar value.
 			if !filterModel.Values.IsNull() && !filterModel.Values.IsUnknown() {
 				var values []string
 				diags.Append(filterModel.Values.ElementsAs(ctx, &values, false)...)
-				filter.Values = values
+				filter.Value = values
+			} else if !filterModel.Value.IsNull() && !filterModel.Value.IsUnknown() {
+				filter.Value = filterModel.Value.ValueString()
 			}
 
 			filters = append(filters, filter)
