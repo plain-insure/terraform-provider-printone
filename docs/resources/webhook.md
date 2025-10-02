@@ -23,6 +23,21 @@ resource "printone_webhook" "example" {
     "order_status_update",
     "batch_status_update"
   ]
+
+  filters = [
+    {
+      key   = "status"
+      event = "order_status_update"
+      type  = "equals"
+      value = "order_created"
+    },
+    {
+      key    = "status"
+      event  = "batch_status_update"
+      type   = "in"
+      values = ["batch_created", "batch_processed"]
+    }
+  ]
 }
 ```
 
@@ -38,12 +53,27 @@ resource "printone_webhook" "example" {
 
 ### Optional
 
+- `filters` (Attributes List) List of filters to apply to webhook events (see [below for nested schema](#nestedatt--filters))
 - `headers` (Map of String) A map of headers to add to each webhook call
 - `secret_headers` (Map of String, Sensitive) A map of headers with secret values, which will not be visible after saving
 
 ### Read-Only
 
 - `id` (String) The id of the webhook
+
+<a id="nestedatt--filters"></a>
+### Nested Schema for `filters`
+
+Required:
+
+- `event` (String) The event type to filter
+- `key` (String) The filter key
+- `type` (String) The filter type (equals, not-equals, in, not-in)
+
+Optional:
+
+- `value` (String) The value to match (for equals/not-equals types)
+- `values` (List of String) The list of values to match (for in/not-in types)
 
 ## Import
 

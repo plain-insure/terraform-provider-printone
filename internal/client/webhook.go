@@ -8,6 +8,15 @@ import (
 	"net/http"
 )
 
+// WebhookFilter represents a filter for webhook events.
+type WebhookFilter struct {
+	Key    string      `json:"key"`
+	Event  string      `json:"event"`
+	Type   string      `json:"type"`
+	Value  interface{} `json:"value,omitempty"`
+	Values []string    `json:"values,omitempty"`
+}
+
 // WebhookRequest represents a webhook creation/update request.
 type WebhookRequest struct {
 	Name          string                 `json:"name"`
@@ -16,7 +25,7 @@ type WebhookRequest struct {
 	Events        []string               `json:"events"`
 	Headers       map[string]interface{} `json:"headers,omitempty"`
 	SecretHeaders map[string]interface{} `json:"secretHeaders,omitempty"`
-	Filters       []interface{}          `json:"filters,omitempty"`
+	Filters       []WebhookFilter        `json:"filters,omitempty"`
 }
 
 // WebhookResponse represents a webhook response from the API.
@@ -29,7 +38,7 @@ type WebhookResponse struct {
 	Headers       map[string]interface{} `json:"headers"`
 	SecretHeaders map[string]interface{} `json:"secretHeaders"`
 	SuccessRate   interface{}            `json:"successRate"`
-	Filters       []interface{}          `json:"filters,omitempty"`
+	Filters       []WebhookFilter        `json:"filters,omitempty"`
 }
 
 // CreateWebhook creates a new webhook.

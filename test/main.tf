@@ -14,26 +14,30 @@ data "printone_webhook" "first_order" {
   id = "a989f2f7-8572-4b9a-89ca-12524003f596"
 }
 
-resource "printone_webhook" "leads2" {
+resource "printone_webhook" "leads" {
   name   = "demo-leads"
   url    = "https://www.example.com/webhook"
   active = false
-  /*
   filters = [
     {
-      key   = "status"
-      event = "order_status_update"
-      type  = "equals"
-      value = "order_created"
+      event  = "order_status_update"
+      key    = "isBillable"
+      type   = "equals"
+      value  = "false"
+      values = null
     },
     {
-      key    = "status"
-      event  = "batch_status_update"
-      type   = "in"
-      values = ["batch_created", "batch_processed"]
-    }
+      event = "order_status_update"
+      key   = "status"
+      type  = "in"
+      value = null
+      values = [
+        "order_created",
+        "order_ready",
+      ]
+    },
   ]
-  */
+
   headers = {
     X-Test = "demo21"
   }

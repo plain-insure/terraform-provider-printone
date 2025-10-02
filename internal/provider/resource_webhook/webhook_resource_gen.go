@@ -55,6 +55,41 @@ func WebhookResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "The callback of the webhook",
 				MarkdownDescription: "The callback of the webhook",
 			},
+			"filters": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"key": schema.StringAttribute{
+							Required:            true,
+							Description:         "The filter key",
+							MarkdownDescription: "The filter key",
+						},
+						"event": schema.StringAttribute{
+							Required:            true,
+							Description:         "The event type to filter",
+							MarkdownDescription: "The event type to filter",
+						},
+						"type": schema.StringAttribute{
+							Required:            true,
+							Description:         "The filter type (equals, not-equals, in, not-in)",
+							MarkdownDescription: "The filter type (equals, not-equals, in, not-in)",
+						},
+						"value": schema.StringAttribute{
+							Optional:            true,
+							Description:         "The value to match (for equals/not-equals types)",
+							MarkdownDescription: "The value to match (for equals/not-equals types)",
+						},
+						"values": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Optional:            true,
+							Description:         "The list of values to match (for in/not-in types)",
+							MarkdownDescription: "The list of values to match (for in/not-in types)",
+						},
+					},
+				},
+				Optional:            true,
+				Description:         "List of filters to apply to webhook events",
+				MarkdownDescription: "List of filters to apply to webhook events",
+			},
 		},
 	}
 }
@@ -67,4 +102,13 @@ type WebhookModel struct {
 	Name          types.String `tfsdk:"name"`
 	SecretHeaders types.Map    `tfsdk:"secret_headers"`
 	Url           types.String `tfsdk:"url"`
+	Filters       types.List         `tfsdk:"filters"`
+}
+
+type WebhookFilterModel struct {
+	Key    types.String `tfsdk:"key"`
+	Event  types.String `tfsdk:"event"`
+	Type   types.String `tfsdk:"type"`
+	Value  types.String `tfsdk:"value"`
+	Values types.List   `tfsdk:"values"`
 }
