@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var _ resource.Resource = (*webhookResource)(nil)
@@ -186,7 +187,13 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	data.SecretHeaders = planInput.SecretHeaders
+	// If the plan did not specify secret_headers (unknown or null), ensure we store a known null value
+	// so Terraform does not consider it unknown after apply.
+	if planInput.SecretHeaders.IsNull() || planInput.SecretHeaders.IsUnknown() {
+		data.SecretHeaders = types.MapNull(types.StringType)
+	} else {
+		data.SecretHeaders = planInput.SecretHeaders
+	}
 
 	// Save data into Terraform state.
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -224,7 +231,11 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	data.SecretHeaders = prevState.SecretHeaders
+	if prevState.SecretHeaders.IsNull() || prevState.SecretHeaders.IsUnknown() {
+		data.SecretHeaders = types.MapNull(types.StringType)
+	} else {
+		data.SecretHeaders = prevState.SecretHeaders
+	}
 
 	// Save updated data into Terraform state.
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -288,7 +299,21 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	plan.SecretHeaders = planInput.SecretHeaders
+	if planInput.SecretHeaders.IsNull() || planInput.SecretHeaders.IsUnknown() {
+		// Fall back to prior state if it had a known value; else set to known null.
+		var prior resource_webhook.WebhookModel
+		resp.Diagnostics.Append(req.State.Get(ctx, &prior)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		if !prior.SecretHeaders.IsNull() && !prior.SecretHeaders.IsUnknown() {
+			plan.SecretHeaders = prior.SecretHeaders
+		} else {
+			plan.SecretHeaders = types.MapNull(types.StringType)
+		}
+	} else {
+		plan.SecretHeaders = planInput.SecretHeaders
+	}
 
 	// Save updated data into Terraform state.
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)

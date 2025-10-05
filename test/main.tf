@@ -10,8 +10,16 @@ terraform {
 
 provider "printone" {}
 
-data "printone_webhook" "first_order" {
-  id = "a989f2f7-8572-4b9a-89ca-12524003f596"
+//data "printone_webhook" "first_order" {
+//  id = ""
+//}
+
+
+resource "printone_webhook" "leads2" {
+  name   = "demo-leads2"
+  url    = "https://www.example.com/webhook2"
+  active = false
+  events = ["order_status_update"]
 }
 
 resource "printone_webhook" "leads" {
@@ -39,7 +47,7 @@ resource "printone_webhook" "leads" {
   ]
 
   headers = {
-    X-Test = "demo21"
+    X-Test = "demo2"
   }
   secret_headers = {
     X-Secret-Test = "secret"
@@ -47,6 +55,6 @@ resource "printone_webhook" "leads" {
   events = ["order_status_update"]
 }
 
-output "first_order" {
-  value = data.printone_webhook.first_order
-}
+//output "first_order" {
+//  value = data.printone_webhook.first_order
+//}
